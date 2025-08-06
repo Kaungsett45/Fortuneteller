@@ -1,0 +1,26 @@
+[
+  {
+    "id": "0",
+    "name": "The Fool",
+    "meaning": "The Fool က မလွဲမပြတ် အစအနနေရာမှာ ရှေးဦးစွာ တင်သွင်းတတ်သူ ဖြစ်သည်။ နောက်ဆုံးမှာ အောင်မြင်မှုရရှိပါလိမ့်မည်။",
+    "img": "https://i.pinimg.com/1200x/95/50/6c/95506cf22c2a8610e7745031d7a82122.jpg"
+  },
+  {
+    "id": "1",
+    "name": "The Magician",
+    "meaning": "The Magician သည် သင်၏ အစွမ်းထက်စွမ်းရည်များကို အသုံးချသင့်ပါသည်ဟု ပြောကြားပါသည်။",
+    "img": "https://i.pinimg.com/originals/12/ab/cd/magician-image.jpg"
+  },
+  {
+    "id": "2",
+    "name": "The High Priestess",
+    "meaning": "The High Priestess သည် သင်၏ စိတ်နှလုံးအတွင်းတွင် အဖြေရှိပြီး အတွေးအမြင်နောက်ခံတစ်ခုလုံးကို ယုံကြည်သင့်ပါသည်။",
+    "img": "https://i.pinimg.com/originals/34/ef/gh/high-priestess.jpg"
+  },
+  {
+    "id": "3",
+    "name": "The Empress",
+    "meaning": "The Empress သည် ဖန်တီးမှု၊ မိခင်သဘာဝနှင့် ပျော်ရွှင်မှုများကို ရည်ညွှန်းသည်။",
+    "img": "https://i.pinimg.com/originals/56/gh/ij/empress-image.jpg"
+  }
+]

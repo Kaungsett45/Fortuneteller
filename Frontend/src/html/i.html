@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Selection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background: #f5f5fa;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .card-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .selected-cards {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .selected-cards h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .selected-cards-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .selected-card {
+            background: #f0f0f5;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .selected-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .selected-card-info {
+            flex: 1;
+        }
+
+        .selected-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #3a5bd9;
+        }
+
+        .clear-btn {
+            background: #ff4757;
+        }
+
+        .clear-btn:hover {
+            background: #e8413a;
+        }
+    </style>
+</head>
+<body>
+    <h1>Card Selection System</h1>
+    
+    <div class="card-container">
+        <div class="card" onclick="selectCard('Green Valley Resort', 'Beautiful mountain resort with breathtaking views', 'resort')">
+            <img src="https://placehold.co/300x160" alt="Green Valley Resort - Luxury mountain resort with wooden cabins and snowy peaks" class="card-img">
+            <div class="card-content">
+                <h3 class="card-title">Green Valley Resort</h3>
+                <p class="card-desc">Beautiful mountain resort with breathtaking views</p>
+            </div>
+        </div>
+        
+        <div class="card" onclick="selectCard('Ocean Paradise', 'Luxury beachfront villas with private pools', 'beach')">
+            <img src="https://placehold.co/300x160" alt="Ocean Paradise - White sandy beach with luxury villas and turquoise waters" class="card-img">
+            <div class="card-content">
+                <h3 class="card-title">Ocean Paradise</h3>
+                <p class="card-desc">Luxury beachfront villas with private pools</p>
+            </div>
+        </div>
+        
+        <div class="card" onclick="selectCard('Urban Loft', 'Modern apartment in the heart of the city', 'city')">
+            <img src="https://placehold.co/300x160" alt="Urban Loft - Contemporary apartment with floor-to-ceiling windows and city skyline" class="card-img">
+            <div class="card-content">
+                <h3 class="card-title">Urban Loft</h3>
+                <p class="card-desc">Modern apartment in the heart of the city</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="selected-cards">
+        <h2>Your Selected Cards (<span id="selected-count">0</span>)</h2>
+        <div class="selected-cards-list" id="selected-cards-container">
+            <!-- Selected cards will appear here -->
+        </div>
+        <div class="actions">
+            <button onclick="showSelectedCards()">Show Selected</button>
+            <button class="clear-btn" onclick="clearSelectedCards()">Clear All</button>
+        </div>
+    </div>
+
+    <script>
+        // Array to store selected cards
+        const selectedCards = [];
+        
+        // Function to select a card and add it to the array
+        function selectCard(title, description, type) {
+            // Check if card is already selected
+            const existingCard = selectedCards.find(card => card.title === title);
+            
+            if (!existingCard) {
+                // Create card object
+                const card = {
+                    title,
+                    description,
+                    type,
+                    timestamp: new Date()
+                };
+                
+                // Add to selected cards array
+                selectedCards.push(card);
+                
+                // Update UI
+                updateSelectedCardsUI();
+            } else {
+                alert('This card is already selected!');
+            }
+        }
+        
+        // Function to update the selected cards in the UI
+        function updateSelectedCardsUI() {
+            const container = document.getElementById('selected-cards-container');
+            const countElement = document.getElementById('selected-count');
+            
+            // Update count
+            countElement.textContent = selectedCards.length;
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Add each selected card to the UI
+            selectedCards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'selected-card';
+                cardElement.innerHTML = `
+                    <img src="https://placehold.co/60x60?text=${card.type}" alt="${card.title} - ${card.description}">
+                    <div class="selected-card-info">
+                        <div class="selected-card-title">${card.title}</div>
+                        <div>${card.description}</div>
+                    </div>
+                `;
+                container.appendChild(cardElement);
+            });
+        }
+        
+        // Function to show selected cards in console
+        function showSelectedCards() {
+            console.log('Selected Cards:', selectedCards);
+            alert(`Showing ${selectedCards.length} selected cards in console`);
+        }
+        
+        // Function to clear all selected cards
+        function clearSelectedCards() {
+            selectedCards.length = 0;
+            updateSelectedCardsUI();
+        }
+    </script>
+</body>
+</html>

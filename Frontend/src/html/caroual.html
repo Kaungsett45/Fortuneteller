@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarot Card Carousel</title>
+     <link rel="stylesheet" href="./caroual.css">
+</head>
+<body>
+    <h1>Tarot Wisdom</h1>
+    <p class="subtitle">Select up to 3 cards from the carousel to receive your reading. Tap on selected cards to reveal their meanings.</p>
+    
+    <div class="cards-selector">
+        Cards selected: <span class="cards-selected">0</span>/<span class="cards-left">3</span>
+    </div>
+    
+    <div class="carousel-container">
+        <button class="nav-button prev"><</button>
+        <div class="carousel">
+            <!-- Cards will be added dynamically -->
+        </div>
+        <button class="nav-button next">></button>
+    </div>
+    
+    <div class="selected-cards-container">
+        <h2 class="selected-cards-title">Your Selected Cards</h2>
+        <div class="selected-cards">
+            <!-- Selected cards will be added here -->
+        </div>
+        <div class="selected-card-info">
+            <div class="reading-text"></div>
+        </div>
+
+        <!-- <div class="cardinfo" id="card-info" >
+            <div class="text" id="card-info"></div>
+        </div> -->
+        <!-- <div class="selection-area" id="card-info">
+
+            <div class="card-info"  id="card-info">
+               
+            </div>
+        </div> -->
+
+        <div class="selection-area">
+            <div id="current-selection"></div>
+            <div class="card-info" id="card-info"></div>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="reset-btn">Start New Reading</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.querySelector('.carousel');
+            const prevBtn = document.querySelector('.prev');
+            const nextBtn = document.querySelector('.next');
+            const selectedCount = document.querySelector('.cards-selected');
+            const cardsLeft = document.querySelector('.cards-left');
+            const selectedCardsContainer = document.querySelector('.selected-cards');
+            const cardInfo = document.querySelector('.selected-card-info');
+            const readingTitle = document.querySelector('.reading-title');
+            const readingText = document.querySelector('.reading-text');
+            const resetBtn = document.querySelector('.reset-btn');
+            const selectedContainer = document.querySelector('.selected-cards-container');
+            
+            // Tarot card data
+            const tarotCards = [
+                {
+                    id: '0',
+                    name: 'The Fool',
+                    imageAlt: 'Young person standing at the edge of a cliff with a small dog, carrying a sack over their shoulder, looking up at the sky with excitement and innocence',
+                    meaning: 'The Fool reပစ္စုပ္ပန်s new beginnings, having faith in the အနာဂတ်, being inexperienced, not knowing what to expect, having beginner\'s luck, improvisation and believing in the universe.',
+                    keywords: 'Beginnings, innocence, spontaneity',
+                    // img:'<h3 class="card-name">${cardData.name}</h3>'
+                    img:'https://i.pinimg.com/1200x/95/50/6c/95506cf22c2a8610e7745031d7a82122.jpg'
+                },
+                {
+                    id: '1',
+                    name: 'The Magician',
+                    imageAlt: 'A figure stands at a table with all four tarot suits (wand, cup, sword, pentacle) as butterflies fly around their hands which are raised in a conjuring gesture',
+                    meaning: 'The Magician is the male power of creation, creation from nothing, the spark of life, the principle of consciousness, divine wisdom and the union of opposites.',
+                    keywords: 'Willpower, skill, concentration, manifestation',
+                    img:'https://i.pinimg.com/1200x/3f/cb/02/3fcb02fed4a228d7227575c2dba50961.jpg'
+                },
+                {
+                    id: '2',
+                    name: 'The High Priestess',
+                    imageAlt: 'A serene woman sits between two pillars, one black and one white, wearing a blue robe with pomegranates embroidered, holding a scroll while gazing knowingly',
+                    meaning: 'The High Priestess is the guardian of the unconscious. She sits in front of the thin veil of unawareness, which is all that separates us from our inner landscape.',
+                    keywords: 'Intuition, sacred knowledge, divine feminine, subconscious',
+                    img:'https://i.pinimg.com/1200x/40/ac/f5/40acf5c01f1bc658bda082e97f34662c.jpg'
+                },
+                {
+                    id: '3',
+                    name: 'The Empress',
+                    imageAlt: 'A queenly figure seated on a throne surrounded by lush vegetation and flowing water, wearing a crown of stars and holding a scepter',
+                    meaning: 'The Empress is a beautiful, full-figured woman with blonde hair. Natural abundance, nurturing, fertility, and the beauty found in nature.',
+                    keywords: 'Fertility, femininity, beauty, nature, abundance',
+                    img:'https://i.pinimg.com/1200x/d1/18/f8/d118f84ac970bf888e55580461bcd739.jpg'
+                },
+                {
+                    id: '4',
+                    name: 'The Emperor',
+                    imageAlt: 'A stern king figure seated on a stone throne with rams\' heads carved into it, holding an orb and scepter with mountains visible behind him',
+                    meaning: 'The Emperor is the complement to the Empress. He is the "top dog," the reigning authority. Reason can limit creative fury but gives us the structure necessary for survival.',
+                    keywords: 'Authority, father-figure, structure, solid foundation',
+                    img:'https://i.pinimg.com/1200x/80/3a/af/803aafdcbee9543839f4e0b29c849a13.jpg'
+                },
+                {
+                    id: '5',
+                    name: 'The Hierophant',
+                    imageAlt: 'A religious leader sits between two pillars, dressed in ceremonial robes, with two acolytes kneeling before him, one hand raised in blessing',
+                    meaning: 'The Hierophant often reပစ္စုပ္ပန်s learning with experts or knowledgeable teachers. The Hierophant\'s purpose is to bring the two initiates into the church so they can take up their appointed roles.',
+                    keywords: 'Tradition, conformity, morality, ethics',
+                    img:'https://i.pinimg.com/1200x/4e/4f/98/4e4f98ff5a76ca4052cb9628774b8b36.jpg'
+                },
+                {
+                    id: '6',
+                    name: 'The Lovers',
+                    imageAlt: 'A nude man and woman standing under an angel with a bow, a tree with flames behind the man and a tree with fruits behind the woman',
+                    meaning: 'The Lovers reပစ္စုပ္ပန် relationships and choices. Its appearance in a spread indicates some decision about an existing relationship, a temptation of the heart, or a choice of potential partners.',
+                    keywords: 'Love, harmony, relationships, values alignment'
+                },
+                {
+                    id: '7',
+                    name: 'The Chariot',
+                    imageAlt: 'A triumphant warrior stands in a chariot pulled by two sphinxes, one black and one white, wearing armor with celestial symbols',
+                    meaning: 'The Chariot points to a triumphal feeling of boldness after conquering internal conflicts. After the turmoil of emotion experienced by the Lovers, the Chariot sees us emerge into a new consciousness.',
+                    keywords: 'Control, willpower, victory, assertion'
+                },
+                {
+                    id: '8',
+                    name: 'Strength',
+                    imageAlt: 'A woman gently holding open the jaws of a lion with her bare hands, wearing a white dress and a crown of flowers',
+                    meaning: 'Strength reပစ္စုပ္ပန်s nature, which, however wild and dangerous, can be tamed by strength of character. Also inner strength, patience and compassion from courage.',
+                    keywords: 'Strength, courage, patience, control'
+                },
+                {
+                    id: '9',
+                    name: 'The Hermit',
+                    imageAlt: 'An old man standing alone on a mountain peak, holding a lantern with a six-pointed star inside, wearing a gray cloak',
+                    meaning: 'The Hermit stands high on a mountain, holding a lantern at the level of his head. His light of knowledge illuminates his own path, but he could shine it on others if he chose to do so.',
+                    keywords: 'Soul-searching, introspection, being alone, inner guidance'
+                },
+                {
+                    id: '10',
+                    name: 'Wheel of Fortune',
+                    imageAlt: 'A giant wheel floating in clouds with four creatures at the corners reပစ္စုပ္ပန်ing the four fixed zodiac signs',
+                    meaning: 'The Wheel of Fortune reminds us of the cyclical nature of both good and bad times. The wheel is always moving and will go through many revolutions in the course of a person\'s life.',
+                    keywords: 'Good luck, karma, life cycles, destiny, turning point'
+                },
+                {
+                    id: '11',
+                    name: 'Justice',
+                    imageAlt: 'A crowned figure seated on a throne holding a sword upright in one hand and scales in the other, with a purple curtain behind',
+                    meaning: 'Justice is one of the virtues reပစ္စုပ္ပန်ed in the Major Arcana. This card symbolizes fairness, balance, and equality. Justice is about making objective decisions and accepting the consequences of your actions.',
+                    keywords: 'Fairness, truth, law, cause and effect'
+                }
+            ];
+            
+            let currentPosition = 0;
+            let selectedCards = [];
+            const maxSelection = 3;
+            
+            // Initialize carousel
+            function initCarousel() {
+                carousel.innerHTML = '';
+                
+                tarotCards.forEach((card, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.setAttribute('data-id', card.id);
+                    cardElement.innerHTML = `
+                        <div class="card-face card-front">
+                            <img src="https://i.pinimg.com/736x/d3/b4/9c/d3b49cff30c5dfb8aadef0cf0fe9becc.jpg" alt="${card.imageAlt}" class="card-img">
+                        </div>
+                        <div class="card-face card-back">
+                            <h3 class="card-name">${card.name}</h3>
+                        </div>
+                    `;
+                    
+                    // Position cards in a circle
+                    const angle = (index / tarotCards.length) * 2 * Math.PI;
+                    const x = 150 * Math.cos(angle);
+                    const z = 150 * Math.sin(angle);
+                    
+                    cardElement.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${-angle}rad)`;
+                    
+                    // Add click event to select card
+                    cardElement.addEventListener('click', () => selectCard(cardElement));
+                    
+                    carousel.appendChild(cardElement);
+                });
+                
+                updateCarousel();
+            }
+            
+            // Update carousel position
+            function updateCarousel() {
+                const cards = document.querySelectorAll('.card');
+                
+                cards.forEach((card, index) => {
+                    // Skip if card is selected
+                    if (selectedCards.includes(card.getAttribute('data-id'))) {
+                        return;
+                    }
+                    
+                    // Calculate position
+                    const angle = ((index - currentPosition) / tarotCards.length) * 2 * Math.PI;
+                    let x = 150 * Math.cos(angle);
+                    let z = 150 * Math.sin(angle);
+                    let opacity = 0.6 + (0.4 * Math.cos(angle));
+                    
+                    // Center card always has z-index 10, others have 0-9
+                    if (Math.abs(angle) < 0.5) { // Cards near the front
+                        card.style.zIndex = Math.round(10 - (Math.abs(angle) * 10));
+                        card.classList.add('float-animation');
+                    } else {
+                        card.style.zIndex = 0;
+                        card.classList.remove('float-animation');
+                    }
+                    
+                    // Cards at the sides fade out
+                    if (Math.abs(angle) > 1) {
+                        opacity = 0.3;
+                    }
+                    
+                    card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${-angle}rad)`;
+                    card.style.opacity = opacity;
+                });
+            }
+            
+            // Select a card
+            selectedCardss = [];
+            function selectCard(cardElement) {
+                
+                const cardId = cardElement.getAttribute('data-id');
+
+                
+                // If card is already selected, don't select again
+                if (selectedCards.includes(cardId)) {
+                    return;
+                }
+                
+                // Check if max selection reached
+                if (selectedCards.length >= maxSelection) {
+                    alert(`You can only select ${maxSelection} cards.`);
+                    return;
+                }
+                
+                // Add to selected cards
+                selectedCards.push(cardId);
+                
+
+                selectedCount.textContent = selectedCards.length;
+                cardsLeft.textContent = maxSelection - selectedCards.length;
+                
+                // Get card data
+                const cardData = tarotCards.find(card => card.id === cardId);
+                selectedCardss.push(cardData);
+                console.log(selectedCardss)
+                // Create selected card element
+                
+                const selectedCard = document.createElement('div');
+                selectedCard.className = 'selected-card';
+                selectedCard.setAttribute('data-id', cardId);
+               
+                // Add to selected cards array
+                // selectedCardss.push(cardData);
+                selectedCard.innerHTML = `
+                    <div class="card-face card-front">
+                        <img src="https://i.pinimg.com/736x/d3/b4/9c/d3b49cff30c5dfb8aadef0cf0fe9becc.jpg" alt="${cardData.imageAlt}" class="card-img">
+                    </div>
+                    <div class="card-face card-back" style="">
+                        
+                        <img src="${cardData.img}" alt="${cardData.imageAlt}" class="card-img">
+                        
+                    </div>
+                    
+                `;
+
+                // console.log(selectedCardss.length)
+                const cardInfo = document.getElementById('card-info');
+                if (selectedCardss.length === 3) {
+    cardInfo.innerHTML = selectedCardss.map(card => `
+    <div style="">
+        <div style=" width: 310px;text-align:top">
+            <h3 style="color:yellow">${card.name}</h3>
+        <p><strong style='margin=20px; color:white;'>${card.meaning}</strong></p>
+        </div>
+        </div>
+    `).join('');
+}
+       
+                //  <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c39f0049-a73e-4096-b04d-ee976c088e90.png" alt="${cardData.imageAlt}" class="card-img">
+
+                // 
+                        
+                
+                // Add click event to show info
+                // Remove click event handler since we're not showing info
+                
+                selectedCardsContainer.appendChild(selectedCard);
+                
+                // Show selected cards container if hidden
+                if (!selectedContainer.style.display || selectedContainer.style.display === 'none') {
+                    selectedContainer.style.display = 'block';
+                }
+                
+                // Animate selection
+                setTimeout(() => {
+                    cardElement.classList.add('selected');
+                    cardElement.style.transition = 'all 0.5s ease';
+                    cardElement.style.zIndex = '1000';
+                    cardElement.style.transform = `translateY(400px) scale(0.9)`;
+                    cardElement.style.opacity = '0';
+                    cardElement.style.transition = 'transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease';
+                    cardElement.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        cardElement.style.display = 'none';
+                        updateCarousel();
+                    }, 500);
+                }, 100);
+                
+                // Show selected card with animation
+                setTimeout(() => {
+                    selectedCard.style.transform = 'rotateY(0deg)';
+                }, 300);
+                
+                // If max selection reached, reveal all cards
+                if (selectedCards.length === maxSelection) {
+                    setTimeout(() => {
+                        revealAllCards();
+                    }, 1000);
+                }
+            }
+            
+            // Remove card info display function completely
+            
+            // Reveal all selected cards
+            function revealAllCards() {
+                const allSelectedCards = document.querySelectorAll('.selected-card');
+                cardInfo.style.display = 'none';
+                
+                let delay = 0;
+                allSelectedCards.forEach(card => {
+                    setTimeout(() => {
+                        card.style.transform = 'rotateY(180deg)';
+                    }, delay);
+                    delay += 500;
+                });
+            }
+            
+            // Reset carousel
+            function resetCarousel() {
+                selectedCards = [];
+                selectedCount.textContent = '0';
+                cardsLeft.textContent = maxSelection;
+                cardInfo.style.display = 'none';
+                
+                // Remove all selected cards
+                selectedCardsContainer.querySelectorAll('.selected-card').forEach(card => {
+                    card.remove();
+                });
+                
+                // Hide selected cards container
+                selectedContainer.style.display = 'none';
+                
+                // Reinitialize carousel
+                initCarousel();
+            }
+            
+            // Event listeners
+            prevBtn.addEventListener('click', () => {
+                currentPosition = (currentPosition - 1 + tarotCards.length) % tarotCards.length;
+                updateCarousel();
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                currentPosition = (currentPosition + 1) % tarotCards.length;
+                updateCarousel();
+            });
+            
+            resetBtn.addEventListener('click', resetCarousel);
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    currentPosition = (currentPosition - 1 + tarotCards.length) % tarotCards.length;
+                    updateCarousel();
+                } else if (e.key === 'ArrowRight') {
+                    currentPosition = (currentPosition + 1) % tarotCards.length;
+                    updateCarousel();
+                } else if (e.key === 'Escape') {
+                    resetCarousel();
+                }
+            });
+            
+            // Auto-rotate
+            let autoRotateInterval = setInterval(() => {
+                if (selectedCards.length === 0) {
+                    currentPosition = (currentPosition + 1) % tarotCards.length;
+                    updateCarousel();
+                }
+            }, 3000);
+            
+            // Initialize the carousel
+            initCarousel();
+        });
+    </script>
+</body>
+</html>
+
