@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+         <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link href="https://fonts.googleapis.com/css2?family=Playwrite+US+Trad&family=Playwrite+US+Modern&display=swap" rel="stylesheet">
+ 
+    <title>AI Palm Reader</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 0px; 
+        
+  background-color: #150C2F;
+
+        
+        }
+
+
+        .decor-left{
+position: absolute;
+  top: 0;   
+  left:0;
+  border: none; 
+            
+        }
+        .decor-right{
+position: absolute;
+  top: 0;   
+  right:0;
+  border: none; 
+            
+        }
+        .decor-bottom{
+position: absolute;
+  bottom: 0;   
+  right:0;
+  border: none; 
+  width:220px;
+            
+        }
+        video, img { max-width: 400px; margin-top: 10px; border: 2px solid #333; border-radius: 10px; }
+        button { margin-top: 10px; padding: 10px 20px; }
+        
+        .loading { display: none; font-size: 18px; color: blue; margin-top: -220px; }
+        .reading { margin-top: 20px; font-size: 18px; color: #222; }
+        .accuracy { margin-top: 10px; font-size: 14px; color: gray; }
+        .error { color: red; margin-top: 15px; }
+
+        
+        .header-title {
+display: flex;
+justify-content: start;
+  position: relative;
+  z-index: 10;
+  margin: 8px 0px 0px 16px; 
+    text-decoration: none;
+  padding:0px;
+  font-size: 24px;
+  color: white;
+  font-family: 'Playwrite US Trad', serif;
+}
+        h1 {
+            font-size: 32px;
+            color: #ffffff;
+            margin-top: 20px;
+              font-size: 24px;
+  color: white;
+  font-family: 'Playwrite US Trad', serif;
+        }
+
+        video {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            background-color: #543FE2;
+            color: white;
+           
+              font-family: 'Playwrite US Trad', serif;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3a5bd9;
+        }
+.camera-wrapper {
+  position: relative;
+  width: 400px;
+  height: 500px;
+  overflow: hidden;
+  border-radius: 20px; /* optional */
+}
+
+#camera {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hand-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* so user can still click capture */
+}
+
+.spinner {
+  margin: 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+    </style>
+</head>
+<body>
+     <img src="../static/lefty.png" alt="" class="decor-left" />
+    <img src="../static/constella.png" alt="" class="decor-right" />
+    <img src="../static/rightastro.png" alt="" class="decor-bottom" />
+    <a href="http://localhost:5173/" class="header-title">Fortuneteller</a>
+    <h1 >Fortune on your hand</h1>
+
+<div style="display: flex; justify-content: center; align-items: center; height: 60vh;">
+  <div id="camera-container" 
+       style="position: relative; width: 400px; height: 400px; overflow: hidden;">
+       
+    <video id="video" autoplay playsinline
+           style="width:100%; height:100%; object-fit: cover;
+                  -webkit-mask-image: url('{{ url_for('static', filename='hand.png') }}');
+                  -webkit-mask-repeat: no-repeat;
+                  -webkit-mask-position: center;
+                  -webkit-mask-size: contain;
+                  mask-image: url('{{ url_for('static', filename='hand.png') }}');
+                  mask-repeat: no-repeat;
+                  mask-position: center;
+                  mask-size: contain;">
+    </video>
+  </div>
+</div>
+
+<br>
+<button id="captureBtn" onclick="capturePhoto()">Capture</button>
+
+<div id="loading" class="loading" style="display:none; color:white; text-align:center; 
+              font-family: 'Playwrite US Trad', serif; font-weight: 500;">
+  <!-- Spinner -->
+  <div class="spinner"></div>
+  <br>
+  🔍 Analyzing your palm... Please wait
+</div>
+
+
+<div id="error" class="error">
+  {% if error %} {{ error }} {% endif %}
+</div>
+
+<form method="POST" action="/analyze" enctype="multipart/form-data" id="photoForm">
+  <input type="file" name="photo" id="photoInput" hidden>
+</form>
+
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const errorEl = document.getElementById("error");
+
+  // If Flask injected an error message, show then hide
+  if (errorEl.innerText.trim() !== "") {
+    errorEl.style.display = "block";
+
+    setTimeout(() => {
+      errorEl.style.display = "none";
+      errorEl.innerText = ""; // clear after hiding
+    }, 2000); // 3s
+  }
+});
+
+   navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    document.getElementById("video").srcObject = stream;
+  })
+  .catch(err => console.error("Camera error:", err));
+
+
+
+        const video = document.getElementById('video');
+        const loading = document.getElementById('loading');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream);
+
+       function capturePhoto() {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // hide video and capture button
+    video.style.display = "none";
+    document.getElementById("captureBtn").style.display = "none";  // 👈 added
+    loading.style.display = "block";
+
+    canvas.toBlob((blob) => {
+        const file = new File([blob], "capture.png", { type: "image/png" });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById("photoInput").files = dataTransfer.files;
+        document.getElementById("photoForm").submit();
+    }, "image/png");
+}
+
+    </script>
+</body>
+</html>
