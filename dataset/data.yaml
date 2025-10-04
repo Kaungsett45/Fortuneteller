@@ -1,0 +1,5 @@
+train: D:/AKSPROJECT/datasettesting/data/images
+val: D:/AKSPROJECT/datasettesting/data/images
+
+nc: 4
+names: ['heart_line', 'head_line', 'life_line', 'fate_line']
