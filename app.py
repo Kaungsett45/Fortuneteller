@@ -16,11 +16,9 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 mp_hands = mp.solutions.hands
 mp_draw = mp.solutions.drawing_utils
 
-# ✅ Replace with your OpenRouter API Key
 
-OPENROUTER_API_KEY ="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"
+OPENROUTER_API_KEY ="#######"
 
-# OPENROUTER_API_KEY=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
 
 def clean_myanmar_text(text):
     # Remove duplicate punctuation
@@ -112,7 +110,7 @@ def ai_interpret(fate_line, heart_line, head_line):
             "Content-Type": "application/json"
         },
         json={
-            "model": "deepseek/deepseek-chat-v3.1",  # ✅ Use Deepseek model
+            "model": "deepseek/deepseek-chat-v3.1",  #
             "messages": [
                 {"role": "system", "content": "You are an expert Myanmar palm reader and fortune teller. Always use correct Myanmar vocabulary."},
                 {"role": "user", "content": prompt}
@@ -154,11 +152,9 @@ def analyze():
     if not detect_palm(filepath):
         return render_template("index.html", error="❌ No palm detected! Try again.")
 
-    # ✅ Enhance palm lines
     processed_path = os.path.join(app.config['UPLOAD_FOLDER'], "processed_" + file.filename)
     enhance_palm_lines(filepath, processed_path)
 
-    # ✅ Call AI interpreter with 3 args only
     reading, accuracy = ai_interpret(processed_path, None, None)
 
     return render_template("result.html",
@@ -168,10 +164,10 @@ def analyze():
 
 
 def enhance_palm_lines(input_path, output_path):
-    # ✅ Just save original image as output
     img = cv2.imread(input_path)
     cv2.imwrite(output_path, img)
     return output_path
 
 if __name__ == "__main__":
     app.run(debug=True)
+
